@@ -5,8 +5,6 @@ class motorService{
 	public:
 		void initService();
 		void pwmSignal();
-	  void moveForward(void);
-	  void moveBackwards(void);
 };
 #endif
 #endif

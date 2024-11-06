@@ -65,3 +65,8 @@ void bluetoothService::initService() {
     b1.uart1Init();
     gpS.gpioFInit();
 }
+bool bluetoothService::bluetoothConnected(){
+		gpioService gpS = gpioService();
+	  gpS.gpioEInit();
+		return (GPIOE ->DATA & 0x10) != 0; 
+}

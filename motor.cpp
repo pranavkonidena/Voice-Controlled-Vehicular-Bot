@@ -3,65 +3,76 @@
 #include "TM4C123.h"
 #include "bluetooth.h"
 #include "servomotor.h"
+#include "gpio.h"
 using namespace std;
 
-void motorService::pwmSignal () {
-	int duty = 25;
+void motorService::pwmSignal (){
+	int duty = 5;
 	bluetoothService bl = bluetoothService();
 	bl.initService();
+	gpioService gp;
+	gp.gpioFInit();
+	gp.gpioDInit();
+	char previousState = 'y';
+	bool bluetoothState = true;
+	bool firstTime = false;
   while (true) {
-				char command = bl.readChar();
-					if(command == 'f') {
-						duty = 0;
-						pwmGenerator(duty);
-						moveForward();
-						duty = 25;
-					}
-					else if(command == 'b') {
-						duty = 0;
-					pwmGenerator(duty);
-						moveBackwards();
-						duty = 25;
-					}
-					else if(command - '0' < 10 && command -'0' >= 0){
-						duty = 5*(command - '0');
-					}
-					else if(command == '+'){
-						duty += 5;
-					}
-					else if(command == '-') {
-						duty -= 5;
-					}
-			  	pwmGenerator(duty);
-					
-					if(command == 'l') {
-							turnLeft();
-					}
-					else if(command == 'r'){
-							turnRight();
-					}
+		//blinkRed(1);
+	
+		/*
 		
-   }
-}
+			 bluetoothState = bl.bluetoothConnected();
+				
+					if(!bluetoothState ){
+						if(!firstTime) blinkRed(3);
+						duty = 0;
+						firstTime = true;
+					}
+					else{
+						if(firstTime){
+							blinkBlue(2);
+							firstTime = false;
+						}
+			
+		*/
+						//bl.sendString("debugger");
+						char command = bl.readChar();
+						if(command == 'x' ) command = previousState;
+						if(command == 'f' ) {
+						//	bl.sendString("Moving Front");
+							glowGreen();
+							moveForward();
+							pwmGeneratorLeft(duty+2);
+							pwmGeneratorRight(duty);
+						}
+						else if(command == 'b' ) {
+						//	bl.sendString("Moving Backwards");
+							glowRed();
+							moveBackwards();
+							pwmGeneratorLeft(duty+2);
+							pwmGeneratorRight(duty);
+						}
+						else if(command - '0' < 10 && command -'0' >= 0){
+							duty = (command - '0');
+						}
+						else if(command == '+'){
+							duty ++;
+						}
+						else if(command == '-') {
+							duty --;
+						}
+						if(command == 'l') {
+								turnLeft(duty);
+							continue;
+						}
+						else if(command == 'r'){
+								turnRight(duty);
+							continue;
+						}
+						if(command == 'f' || command == 'b') previousState = command;
+		 }
+	}
 
-
-void motorService::moveForward(void)
-{
-    SYSCTL->RCGC2 |= 0x01;   // Enable clock to PORTA
-    GPIOA->DIR |= (1<<3)|(1<<2); // Set PA2 and PA3 as output pins
-    GPIOA->DEN |= (1<<3)|(1<<2); // Enable digital functionality for PA2 and PA3
-    GPIOA->DATA |=(1<<2);        // Set PA2 HIGH
-    GPIOA->DATA &=~(1<<3);       //?Set?PA3?LOW
-}
-
-void motorService::moveBackwards(void)
-{
-    SYSCTL->RCGC2 |= 0x01;   // Enable clock to PORTA
-    GPIOA->DIR |= (1<<3)|(1<<2); // Set PA2 and PA3 as output pins
-    GPIOA->DEN |= (1<<3)|(1<<2); // Enable digital functionality for PA2 and PA3
-    GPIOA->DATA &=~(1<<2);        // Set PA2 HIGH
-    GPIOA->DATA |=(1<<3);       //?Set?PA3?LOW
-}
 
 void motorService::initService(){
 		SYSCTL->RCGC2 |= 0x20;       // Enable clock to GPIOF

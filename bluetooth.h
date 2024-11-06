@@ -9,6 +9,7 @@ public:
     char readChar();
     char* readString(char delimiter);
 		void initService();
+		bool bluetoothConnected();
 };
 
 #endif

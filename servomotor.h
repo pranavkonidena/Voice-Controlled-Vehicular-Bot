@@ -1,7 +1,6 @@
 #ifndef SERVOMOTOR_H
 #define SERVOMOTOR_H
 
-void turnLeft();
-void turnRight();
-void servoGenerator();
+void turnLeft(int duty);
+void turnRight(int duty);
 #endif
